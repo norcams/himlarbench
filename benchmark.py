@@ -11,7 +11,7 @@ import time
 
 fqdn = socket.getfqdn()
 num_tests = 10
-max_time = '360'
+max_time = '300'
 
 global_args = [
     '--threads=' + str(multiprocessing.cpu_count()),
