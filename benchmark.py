@@ -13,11 +13,6 @@ fqdn = socket.getfqdn()
 num_tests = 10
 max_time = '300'
 
-global_args = [
-    '--threads=' + str(multiprocessing.cpu_count()),
-    '--time=' + max_time
-]
-
 def parse_output(output, data):
     """ Parse sysbench text output and store the metric in a dict """
     for line in output.splitlines():
@@ -31,7 +26,7 @@ def parse_output(output, data):
         data[name.strip()] = value.strip()
     return data
 
-def run_test(name, **kwargs):
+def run_test(name, global_args, **kwargs):
     """ Run a sysbench test with custom args """
     command = ["sysbench", name] + global_args
 
@@ -42,6 +37,15 @@ def run_test(name, **kwargs):
     return subprocess.check_output(command)
 
 def main(args):
+    args.pop(0)
+    if len(args) == 0:
+        print >>sys.stderr, "Need at max time input"
+        return 1
+
+    global_args = [
+        '--threads=' + str(multiprocessing.cpu_count()),
+        '--time=' + args.pop()
+    ]
     data = {}
 
     # Memory
@@ -52,7 +56,7 @@ def main(args):
     for i in range(num_tests):
         kwargs['memory_block_size'] = memory_blocks[i]
         data[name][i] = {}
-        output = run_test(name, **kwargs)
+        output = run_test(name, global_args, **kwargs)
         time.sleep(1)
         #print output
         parse_output(output, data[name][i])
@@ -60,6 +64,7 @@ def main(args):
     # Output json
     with open('benchmark.js', 'w') as outfile:
         json.dump(data, outfile, indent=2)
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
