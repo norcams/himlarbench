@@ -1,0 +1,10 @@
+bin/
+build/
+dist/
+lib/
+lib64
+include/
+share/
+*.egg-info
+*.pyc
+*.fuse*
